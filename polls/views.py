@@ -1,41 +1,21 @@
 from django.http import HttpResponse
-from .models import Question
+from .models import Question, Choice
 from django.template import loader
 
 # 뷰 추가하기
-# http://127.0.0.1:8000/polls/1/detail
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
 
-# http://127.0.0.1:8000/polls/2/results
 def results(request, question_id):
-    response = "You're looking at the results of question %s."
-    return HttpResponse(response % question_id)
+    question = get_object_or_404(Question, pk=question_id)
+    return render(request, "polls/results.html", {"question": question})
 
-# http://127.0.0.1:8000/polls/3/vote
-def vote(request, question_id):
-    return HttpResponse("You're voting on question %s." % question_id)
-
-
-# # # 새로운 인덱스
-# # from .models import Questio
-# def index(request):
-# 	# Question 테이블의 pub_date를 정렬해서 최근 5개 값을 변수에 할당
-#     latest_question_list = Question.objects.order_by("-pub_date")[:5]
-#     # 위에서 가져온 데이터에 있는 각 Question의 question_text 속성을 ,로 구분해서 조인
-#     output = ", ".join([q.question_text for q in latest_question_list])
-#     return HttpResponse(output)
-
-# # index 뷰 업데이트
-# from django.shortcuts import render
-# def index(request):
-#     latest_question_list = Question.objects.order_by("-pub_date")[:5]
-#     template = loader.get_template("polls/index.html")
-#     context = {
-#         "latest_question_list": latest_question_list,
-#     }
-#     return HttpResponse(template.render(context, request))
-
+# def vote(request, question_id):
+#     # choice 데이터에서 해당하는 값에 votes를 1 더하기
+#     c = Choice.objects.get(pk=8)
+#     c.votes += 1
+#     c.save()
+#     return HttpResponse("You're voting on question %s." % question_id)
 
 # 단축키 index 뷰 업데이트와 같은 내용
 from django.shortcuts import render
@@ -52,6 +32,41 @@ from django.shortcuts import get_object_or_404, render
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     return render(request, "polls/detail.html", {"question": question})
+
+
+# vote의 detail 템플릿을 수정 -> form 요소 포함
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.db.models import F
+def vote(request, question_id):
+
+    # # choice 데이터에서 해당하는 값에 votes를 1 더하기
+    # c = Choice.objects.get(pk=8)
+    # c.votes += 1
+    # c.save()
+
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST["choice"])
+    except (KeyError, Choice.DoesNotExist):
+        # Redisplay the question voting form.
+        return render(
+            request,
+            "polls/detail.html",
+            {
+                "question": question,
+                "error_message": "You didn't select a choice.",
+            },
+        )
+    else:
+        # F() 함수 연산
+        # votes 값을 1만큼 증가시키고 저장
+        selected_choice.votes = F("votes") + 1
+        selected_choice.save()
+        # Always return an HttpResponseRedirect after successfully dealing
+        # with POST data. This prevents data from being posted twice if a
+        # user hits the Back button.
+        return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
 
 
 
