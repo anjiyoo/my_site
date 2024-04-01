@@ -17,12 +17,6 @@ def vote(request, question_id):
     return HttpResponse("You're voting on question %s." % question_id)
 
 
-# Hello, world! 출력
-# http://127.0.0.1:8000/polls/5/hello
-def hello(request, question_id):
-      return HttpResponse("Hello, world! %s" % question_id)
-
-
 # # # 새로운 인덱스
 # # from .models import Questio
 # def index(request):
