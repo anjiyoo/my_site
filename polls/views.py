@@ -3,18 +3,25 @@ from .models import Question
 from django.template import loader
 
 # 뷰 추가하기
-# http://127.0.0.1:8000/polls/1/
+# http://127.0.0.1:8000/polls/1/detail
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
 
-# http://127.0.0.1:8000/polls/2/
+# http://127.0.0.1:8000/polls/2/results
 def results(request, question_id):
     response = "You're looking at the results of question %s."
     return HttpResponse(response % question_id)
 
-# http://127.0.0.1:8000/polls/3/
+# http://127.0.0.1:8000/polls/3/vote
 def vote(request, question_id):
     return HttpResponse("You're voting on question %s." % question_id)
+
+
+# Hello, world! 출력
+# http://127.0.0.1:8000/polls/5/hello
+def hello(request, question_id):
+      return HttpResponse("Hello, world! %s" % question_id)
+
 
 # # # 새로운 인덱스
 # # from .models import Questio
@@ -39,6 +46,7 @@ def vote(request, question_id):
 # 단축키 index 뷰 업데이트와 같은 내용
 from django.shortcuts import render
 def index(request):
+    # 최근 추가한 5개 보임
     latest_question_list = Question.objects.order_by("-pub_date")[:5]
     context = {"latest_question_list": latest_question_list}
     # index.html 파일 경로
