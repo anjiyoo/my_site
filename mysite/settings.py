@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # polls 앱 등록
     'polls.apps.PollsConfig',
+    # django-debug-toolbar
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # django-debug-toolbar
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+]
+
+# 디버그 툴바 설치 : 아래 코드 추가
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -56,7 +66,8 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
+        # os.path.join(BASE_DIR, "templates")
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

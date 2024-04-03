@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # http://127.0.0.1:8000/polls
     path("polls/", include("polls.urls")),
+    # django-debug-toolbar
+    path("__debug__/", include("debug_toolbar.urls")),
 ]

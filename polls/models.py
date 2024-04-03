@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 import datetime
+from django.contrib import admin
 
 # Question 테이블
 class Question(models.Model):
@@ -12,6 +13,12 @@ class Question(models.Model):
     # 매직 메소드 생성
     def __str__(self):
           return self.question_text
+    
+    @admin.display(
+              boolean=True,
+              ordering="pub_date",
+              description="Published recently?"
+    )
     
     # 생성일이 최근인지 체크하는 메소드
     def was_published_recently(self):

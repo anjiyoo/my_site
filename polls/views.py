@@ -26,7 +26,7 @@ class ChoiceUpdateView(generic.UpdateView):
     success_url = reverse_lazy('polls:index')
 
 # UpdateView
-class QuestionUpdateView(generic.UpdateView):
+class QuestionUpdateView(generic.edit.UpdateView):
     model = Question
     fields = ['question_text', 'pub_date']
     template_name = 'polls/question_update_form.html' 
@@ -36,9 +36,9 @@ class QuestionUpdateView(generic.UpdateView):
 
 # ChoiceCreateView
 # 연습문제1.설문조사 앱에 새로운 선택지 추가 기능 구현
-class ChoiceCreateView(generic.CreateView):
+class ChoiceCreateView(generic.edit.CreateView):
     model = Choice
-    fields = ['choice_text']
+    fields=['choice_text']
     template_name = 'polls/choice_form.html'
     def form_valid(self, form):
         form.instance.question = get_object_or_404(Question, pk=self.kwargs['pk'])
@@ -47,11 +47,25 @@ class ChoiceCreateView(generic.CreateView):
         return reverse('polls:detail', kwargs={'question_id': self.kwargs['pk']})
 
 # CreateView
-class QuestionCreateView(generic.CreateView):
+class QuestionCreateView(generic.edit.CreateView):
     model = Question
     fields = ['question_text']
     template_name = 'polls/question_form.html'
     success_url = reverse_lazy('polls:index')
+
+
+
+# 뷰 개선하기
+from django.utils import timezone
+
+def get_queryset(self):
+    """
+    Return the last five published questions (not including those set to be
+    published in the future).
+    """
+    return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[
+        :5
+    ]
 
 
 
@@ -114,6 +128,25 @@ class ResultsView(generic.DetailView):
 
 
 
+# 뷰 개선하기
+from django.http import Http404
+
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = "polls/results.html"
+
+    def get_object(self, queryset=None):
+        """
+        Excludes questions that don't have at least one choice.
+        """
+        # super().get_object() 대신 get_object_or_404를 사용하여 객체를 가져옵니다.
+        Question = get_object_or_404(Question, pk=self.kwargs.get('pk'))
+        if not Question.choice_set.exists():
+            raise Http404("No choices found for this question.")
+        return Question
+
+
+
 # 단축키 index 뷰 업데이트와 같은 내용
 def index(request):
     # 최근 추가한 5개 보임
@@ -127,7 +160,19 @@ def index(request):
 # 객체가 존재하지 않을 때 get() 을 사용하여 Http404 예외를 발생
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
-    return render(request, "polls/detail.html", {"question": question})
+    # choice_count = len(question.choice_set.all())
+    # content_1 = question.choice_set.all()[0]
+    question_list = Question.objects.all()
+    context ={
+        "question" : question,
+        "question_list" : question_list
+    }
+    # context ={
+    #     "question" : question,
+    #     "ch_num" : choice_count,
+    #     "content_1":content_1
+    # }
+    return render(request, "polls/detail.html", context)
 
 
 
