@@ -98,6 +98,15 @@ class IndexView(generic.ListView):
     
 
 # DetailView
+# class DetailView(generic.DetailView):
+#     model = Question
+#     # template_name = "polls/detail.html"
+#     def get_queryset(self):
+#             """
+#             Excludes any questions that aren't published yet.
+#             """
+#             return Question.objects.filter(pub_date__lte=timezone.now())
+    
 # # 연습문제1
 # class DetailView(generic.DetailView):
 #     model = Question
@@ -108,8 +117,8 @@ class IndexView(generic.ListView):
 #         question = get_object_or_404(Question, pk=q_id)
 #         return question
     
-# 연습문제2
-# polls/question_detail.html 생성
+# # 연습문제2
+# # polls/question_detail.html 생성
 class DetailView(generic.DetailView):
     model = Question
     template_name = "polls/question_detail.html"
